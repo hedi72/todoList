@@ -1,8 +1,16 @@
 const todoList = document.querySelector("#todo-list");
 const form = document.querySelector("#add-todo-form");
+const title1 = document.querySelector("#title");
+title1.focus();
+
 const updateBtn = document.querySelector("#update");
-let newTitle = "";
+// const newTitle1 = document.querySelector("#newTitle1");
+// let newTitle = "";
+
 let updateId = null;
+
+// newTitle1.value = "hello";
+// newTitle1.focus();
 function renderList(doc) {
   // <li class="collection-item">
   //             <div>
@@ -44,14 +52,24 @@ function renderList(doc) {
       e.target.parentElement.parentElement.parentElement.getAttribute(
         "data-id"
       );
+    let x = e.target.parentElement.parentElement;
+
+    let span = x.querySelector("span").textContent;
     console.log("updateId", updateId);
+    let newTitle = document.querySelector("#newTitle1");
+
+    newTitle.value = span;
+    window.setTimeout(() => newTitle.focus(), 0);
   });
   todoList.append(li);
 }
 // console.log(document.getElementsByName("newTitle")[0]);
 
 updateBtn.addEventListener("click", (e) => {
-  newTitle = document.getElementsByName("newTitle")[0].value;
+  // newTitle = document.getElementsByName("newTitle")[0].value;
+
+  newTitle = document.querySelector("#newTitle1").value;
+
   db.collection("todos").doc(updateId).update({
     title: newTitle,
   });
@@ -77,12 +95,17 @@ db.collection("todos")
         console.log(change.doc.data());
       } else if (change.type == "removed") {
         console.log("removed");
-        let li = todoList.querySelector(`[data-id=${change.doc.id}]`);
+        let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
+
+        // let li = todoList.querySelector(`[data-id=${change.doc.id}]`);
         todoList.removeChild(li);
       } else if (change.type == "modified") {
-        let li = todoList.querySelector(`[data-id=${change.doc.id}]`);
+        let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
+        let span = li.querySelector("span").textContent;
+        console.log(span);
         li.getElementsByTagName("span")[0].textContent = newTitle;
-        newTitle = "";
+        newTitle = document.querySelector("#newTitle1");
+        newTitle.value = "";
         console.log("modified");
       }
     });
