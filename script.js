@@ -1,16 +1,11 @@
 const todoList = document.querySelector("#todo-list");
 const form = document.querySelector("#add-todo-form");
 const title1 = document.querySelector("#title");
+const btnAdd = document.querySelector("#add_edit");
 title1.focus();
-
 const updateBtn = document.querySelector("#update");
-// const newTitle1 = document.querySelector("#newTitle1");
-// let newTitle = "";
-
 let updateId = null;
 
-// newTitle1.value = "hello";
-// newTitle1.focus();
 function renderList(doc) {
   // <li class="collection-item">
   //             <div>
@@ -29,13 +24,13 @@ function renderList(doc) {
   let title = document.createElement("span");
   title.textContent = doc.data().title;
   let anchor = document.createElement("a");
-  anchor.href = "#modal1";
+  // anchor.href = "#modal1";
   anchor.className = "modal-trigger secondary-content";
   let editBtn = document.createElement("i");
-  editBtn.className = "material-icons";
+  editBtn.className = "material-icons editBtn";
   editBtn.innerText = "edit";
   let deleteBtn = document.createElement("i");
-  deleteBtn.className = "material-icons secondary-content";
+  deleteBtn.className = "material-icons secondary-content  deleteBtn";
   deleteBtn.innerText = "delete";
   anchor.appendChild(editBtn);
   div.appendChild(title);
@@ -46,6 +41,9 @@ function renderList(doc) {
     console.log("delete");
     let id = e.target.parentElement.parentElement.getAttribute("data-id");
     db.collection("todos").doc(id).delete();
+
+    btnAdd.textContent = "Add Task";
+    btnAdd.style.backgroundColor = "#26a69a";
   });
   editBtn.addEventListener("click", (e) => {
     updateId =
@@ -56,31 +54,44 @@ function renderList(doc) {
 
     let span = x.querySelector("span").textContent;
     console.log("updateId", updateId);
-    let newTitle = document.querySelector("#newTitle1");
+    // let newTitle = document.querySelector("#newTitle1");
 
-    newTitle.value = span;
-    window.setTimeout(() => newTitle.focus(), 0);
+    // newTitle.value = span;
+    // window.setTimeout(() => newTitle.focus(), 0);
+
+    title1.value = span;
+
+    btnAdd.textContent = "edit";
+    btnAdd.style.backgroundColor = "#ee6e73";
+
+    form.title.focus();
   });
   todoList.append(li);
 }
-// console.log(document.getElementsByName("newTitle")[0]);
 
-updateBtn.addEventListener("click", (e) => {
-  // newTitle = document.getElementsByName("newTitle")[0].value;
-
-  newTitle = document.querySelector("#newTitle1").value;
-
-  db.collection("todos").doc(updateId).update({
-    title: newTitle,
-  });
-});
+function verifEmail(x, y) {
+  if (x == y) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  db.collection("todos").add({
-    title: form.title.value,
-  });
-  form.title.value = "";
+  if (form.title.value != "") {
+    if (btnAdd.textContent == "Add Task") {
+      db.collection("todos").add({
+        title: form.title.value,
+      });
+      form.title.value = "";
+    } else {
+      db.collection("todos").doc(updateId).update({
+        title: form.title.value,
+      });
+      btnAdd.textContent = "Add Task";
+      btnAdd.style.backgroundColor = "#26a69a";
+    }
+  }
 });
 
 db.collection("todos")
@@ -88,24 +99,29 @@ db.collection("todos")
   .onSnapshot((snapshot) => {
     let changes = snapshot.docChanges();
     console.log(changes);
+
     changes.forEach((change) => {
+      console.log("data", form.title.value);
+      // console.log(change.doc.data().title != form.title.value);
       if (change.type == "added") {
+        verifEmail(change.doc.data().title, form.title.value);
         renderList(change.doc);
         console.log("added");
         console.log(change.doc.data());
+        console.log("quoiii", change.doc.data().title);
       } else if (change.type == "removed") {
         console.log("removed");
         let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
-
+        form.title.value = "";
         // let li = todoList.querySelector(`[data-id=${change.doc.id}]`);
         todoList.removeChild(li);
       } else if (change.type == "modified") {
         let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
-        let span = li.querySelector("span").textContent;
-        console.log(span);
-        li.getElementsByTagName("span")[0].textContent = newTitle;
-        newTitle = document.querySelector("#newTitle1");
-        newTitle.value = "";
+
+        // btnAdd2 = document.querySelector("#newTitle1");
+        li.getElementsByTagName("span")[0].textContent = form.title.value;
+        // newTitle = document.querySelector("#newTitle1");
+        form.title.value = "";
         console.log("modified");
       }
     });

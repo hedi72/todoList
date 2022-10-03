@@ -1,0 +1,16 @@
+.editBtn:hover{
+    
+    color: #f3e309;
+    cursor: pointer;
+
+}
+.deleteBtn:hover{
+    
+    color: red;
+    cursor: pointer;
+
+}
+#todo-list li:hover{
+    background-color: antiquewhite;
+
+}
