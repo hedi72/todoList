@@ -1,11 +1,17 @@
+// appelation
 const todoList = document.querySelector("#todo-list");
 const form = document.querySelector("#add-todo-form");
 const title1 = document.querySelector("#title");
 const btnAdd = document.querySelector("#add_edit");
+const errorAlerte = document.querySelector(".errorAlerte");
+
+// form.style.backgroundColor = "#f3e309";
+
 title1.focus();
 const updateBtn = document.querySelector("#update");
 
 let updateId = null;
+let contenuIn = "true";
 
 function renderList(doc) {
   // <li class="collection-item">
@@ -67,9 +73,52 @@ function renderList(doc) {
   todoList.append(li);
 }
 
+form.addEventListener("keyup", (e) => {
+  let x = form.title.value;
+  console.log(form.title.value);
+
+  db.collection("todos")
+    .orderBy("title")
+    .onSnapshot((snapshot) => {
+      let changes = snapshot.docChanges();
+
+      for (i = 0; i < changes.length; i++) {
+        if (x != changes[i].doc.data().title) {
+          console.log("Il n y a pas  une similarité");
+          contenuIn = "true";
+          form.title.style.borderBottom = "2px solid #26a69a";
+          btnAdd.style.backgroundColor = "#26a69a";
+          errorAlerte.innerHTML = "";
+        } else {
+          console.log("Il  y a une similarité");
+          contenuIn = "false";
+          form.title.style.borderBottom = "2px solid red";
+          btnAdd.style.backgroundColor = "red";
+          errorAlerte.innerHTML = "existe deja";
+          errorAlerte.style.color = "red";
+          errorAlerte.style.float = "right";
+          errorAlerte.style.paddingTop = "10px";
+          break;
+        }
+      }
+
+      // changes.forEach((change) => {
+      //   console.log("v1", x);
+      //   console.log("v2", change.doc.data().title);
+      //   if (form.title.value == change.doc.data().title) {
+      //     contenuIn = "false";
+      //   } else {
+      //     contenuIn = "true";
+      //   }
+      // });
+    });
+});
+
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  if (form.title.value != "") {
+  console.log("ye rabi m3ana", contenuIn);
+
+  if (form.title.value != "" && contenuIn == "true") {
     if (btnAdd.textContent == "Add Task") {
       db.collection("todos").add({
         title: form.title.value,
@@ -90,19 +139,52 @@ db.collection("todos")
   .onSnapshot((snapshot) => {
     let changes = snapshot.docChanges();
     console.log(changes);
+
     changes.forEach((change) => {
+      console.log(change.doc.data().title == contenuIn);
       if (change.type == "added") {
         renderList(change.doc);
         console.log("added");
         console.log(change.doc.data());
+        let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
+        setTimeout(function background() {
+          // todoList.style.backgroundColor = "#f3e309";
+          li.style.backgroundColor = "antiquewhite";
+          li.style.color = "red";
+        }, 1);
+        setTimeout(function background() {
+          // todoList.style.backgroundColor = "#f3e309";
+          li.style.backgroundColor = "white";
+          li.style.color = "black";
+        }, 1000);
       } else if (change.type == "removed") {
         console.log("removed");
         let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
 
         // let li = todoList.querySelector(`[data-id=${change.doc.id}]`);
-        todoList.removeChild(li);
+        setTimeout(function background() {
+          // todoList.style.backgroundColor = "#f3e309";
+          li.style.backgroundColor = "antiquewhite";
+          li.style.color = "red";
+        }, 1);
+        setTimeout(function background() {
+          // todoList.style.backgroundColor = "#f3e309";
+          li.style.backgroundColor = "white";
+          li.style.color = "black";
+          todoList.removeChild(li);
+        }, 100);
       } else if (change.type == "modified") {
         let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
+        setTimeout(function background() {
+          // todoList.style.backgroundColor = "#f3e309";
+          li.style.backgroundColor = "antiquewhite";
+          li.style.color = "red";
+        }, 10);
+        setTimeout(function background() {
+          // todoList.style.backgroundColor = "#f3e309";
+          li.style.backgroundColor = "white";
+          li.style.color = "black";
+        }, 3000);
 
         // btnAdd2 = document.querySelector("#newTitle1");
         li.getElementsByTagName("span")[0].textContent = form.title.value;
