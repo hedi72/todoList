@@ -4,6 +4,7 @@ const title1 = document.querySelector("#title");
 const btnAdd = document.querySelector("#add_edit");
 title1.focus();
 const updateBtn = document.querySelector("#update");
+
 let updateId = null;
 
 function renderList(doc) {
@@ -41,9 +42,6 @@ function renderList(doc) {
     console.log("delete");
     let id = e.target.parentElement.parentElement.getAttribute("data-id");
     db.collection("todos").doc(id).delete();
-
-    btnAdd.textContent = "Add Task";
-    btnAdd.style.backgroundColor = "#26a69a";
   });
   editBtn.addEventListener("click", (e) => {
     updateId =
@@ -69,15 +67,8 @@ function renderList(doc) {
   todoList.append(li);
 }
 
-function verifEmail(x, y) {
-  if (x == y) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 form.addEventListener("submit", (e) => {
+  e.preventDefault();
   if (form.title.value != "") {
     if (btnAdd.textContent == "Add Task") {
       db.collection("todos").add({
@@ -99,20 +90,15 @@ db.collection("todos")
   .onSnapshot((snapshot) => {
     let changes = snapshot.docChanges();
     console.log(changes);
-
     changes.forEach((change) => {
-      console.log("data", form.title.value);
-      // console.log(change.doc.data().title != form.title.value);
       if (change.type == "added") {
-        verifEmail(change.doc.data().title, form.title.value);
         renderList(change.doc);
         console.log("added");
         console.log(change.doc.data());
-        console.log("quoiii", change.doc.data().title);
       } else if (change.type == "removed") {
         console.log("removed");
         let li = todoList.querySelector('[data-id="' + change.doc.id + '"]');
-        form.title.value = "";
+
         // let li = todoList.querySelector(`[data-id=${change.doc.id}]`);
         todoList.removeChild(li);
       } else if (change.type == "modified") {
